@@ -1,0 +1,85 @@
+[
+  {
+    "name": "/search prompts for a query",
+    "steps": [
+      {
+        "send": { "text": "/search" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "What song or artist are you looking for?\n\nType your search below."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "the Search menu button also prompts for a query",
+    "steps": [
+      {
+        "send": { "callback": "search:show" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "What song or artist are you looking for?\n\nType your search below."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "a short query is rejected",
+    "steps": [
+      {
+        "send": { "text": "/search" },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "What song or artist are you looking for?\n\nType your search below." } }
+        ]
+      },
+      {
+        "send": { "text": "a" },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "That's too short — try at least 2 characters." } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "searching for a track processes the query",
+    "steps": [
+      {
+        "send": { "text": "/search" },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "What song or artist are you looking for?\n\nType your search below." } }
+        ]
+      },
+      {
+        "send": { "text": "Bohemian Rhapsody" },
+        "expect": [
+          { "method": "sendMessage" }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "searching with no results shows empty state",
+    "steps": [
+      {
+        "send": { "text": "/search" },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "What song or artist are you looking for?\n\nType your search below." } }
+        ]
+      },
+      {
+        "send": { "text": "xyznonexistenttrack12345" },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "No results for \"xyznonexistenttrack12345\" — try a different search or check the spelling." } }
+        ]
+      }
+    ]
+  }
+]

@@ -1,17 +1,36 @@
 import { Composer } from "grammy";
+import type { Ctx } from "../bot.js";
+import { inlineButton, inlineKeyboard } from "../toolkit/index.js";
 
-// SCAFFOLD — generated from the bot blueprint BEFORE the agent runs.
-// Keep a LIVE registration (.command / .callbackQuery / …) so this feature is
-// never an empty stub. Replace the reply body with real logic + copy; if you
-// change the user-facing text, update tests/specs to match EXACTLY.
-// Do NOT rewrite src/bot.ts — buildBot() already auto-loads this module.
-// Menu: wire this into /start via registerMainMenuItem({ label: "View Preview", data: "preview:open" }) if the toolkit exposes it.
+const composer = new Composer<Ctx>();
 
-const composer = new Composer();
-
-composer.callbackQuery("preview:open", async (ctx) => {
+composer.callbackQuery(/^preview:(.+)$/, async (ctx) => {
   await ctx.answerCallbackQuery();
-  await ctx.reply("Open external preview page privately");
+  const trackId = ctx.match[1];
+  const results = ctx.session.searchResults ?? [];
+  const track = results.find((r) => r.trackId === trackId);
+
+  if (!track) {
+    await ctx.reply(
+      "That preview link has expired — run a new search to find it again.",
+      { reply_markup: inlineKeyboard([[inlineButton("🔍 Search again", "search:show")]]) },
+    );
+    return;
+  }
+
+  const text =
+    `🎵 ${track.trackTitle}\n` +
+    `👤 ${track.artist}\n` +
+    `💿 ${track.album}\n\n` +
+    `Tap below to listen to the preview:`;
+
+  await ctx.reply(text, {
+    reply_markup: inlineKeyboard([
+      [inlineButton("🎧 Listen to preview", track.previewUrl)],
+      [inlineButton("↗️ Share this track", `share:${trackId}`)],
+      [inlineButton("⬅️ Back to menu", "menu:main")],
+    ]),
+  });
 });
 
 export default composer;

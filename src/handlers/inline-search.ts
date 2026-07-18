@@ -1,17 +1,47 @@
 import { Composer } from "grammy";
+import type { Ctx } from "../bot.js";
+import { inlineButton, inlineKeyboard } from "../toolkit/index.js";
+import { searchTracks } from "../lib/music-api.js";
 
-// SCAFFOLD — generated from the bot blueprint BEFORE the agent runs.
-// Keep a LIVE registration (.command / .callbackQuery / …) so this feature is
-// never an empty stub. Replace the reply body with real logic + copy; if you
-// change the user-facing text, update tests/specs to match EXACTLY.
-// Do NOT rewrite src/bot.ts — buildBot() already auto-loads this module.
-// Menu: wire this into /start via registerMainMenuItem({ label: "@BotName [query]", data: "inline_search" }) if the toolkit exposes it.
-
-const composer = new Composer();
+const composer = new Composer<Ctx>();
 
 composer.callbackQuery("inline_search", async (ctx) => {
   await ctx.answerCallbackQuery();
-  await ctx.reply("Trigger inline search suggestions in channels");
+  await ctx.reply(
+    "To search for music, tap 🔍 Search on the main menu or type /search.",
+    { reply_markup: inlineKeyboard([[inlineButton("⬅️ Back to menu", "menu:main")]]) },
+  );
+});
+
+composer.on("inline_query", async (ctx) => {
+  const query = ctx.inlineQuery.query;
+  if (!query || query.length < 2) {
+    await ctx.answerInlineQuery([], { cache_time: 0 });
+    return;
+  }
+
+  const results = await searchTracks(query, 5);
+  const articles = results.map((r) => ({
+    type: "article" as const,
+    id: r.trackId,
+    title: r.trackTitle,
+    description: `${r.artist} — ${r.album}`,
+    ...(r.coverArtUrl
+      ? { thumbnail_url: r.coverArtUrl }
+      : {}),
+    input_message_content: {
+      message_text:
+        `🎵 ${r.trackTitle}\n` +
+        `👤 ${r.artist}\n` +
+        `💿 ${r.album}\n\n` +
+        `🎧 Preview: ${r.previewUrl}`,
+    },
+    reply_markup: inlineKeyboard([
+      [inlineButton("🔗 Preview", `preview:${r.trackId}`)],
+    ]),
+  }));
+
+  await ctx.answerInlineQuery(articles, { cache_time: 300 });
 });
 
 export default composer;

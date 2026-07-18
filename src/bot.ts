@@ -5,8 +5,26 @@ import { createBot, type BotContext } from "./toolkit/index.js";
 // The per-chat session shape (ephemeral conversation state only). Extend as the
 // bot grows. Durable domain data must NOT live here — use the toolkit's
 // persistent storage (see AGENTS.md).
+export interface SearchResult {
+  trackId: string;
+  trackTitle: string;
+  artist: string;
+  album: string;
+  coverArtUrl: string;
+  previewUrl: string;
+}
+
+export interface ShareData {
+  trackId: string;
+  trackTitle: string;
+  artist: string;
+  previewUrl: string;
+}
+
 export interface Session {
-  // example: step?: "awaiting_amount";
+  step?: "idle" | "awaiting_search";
+  searchResults?: SearchResult[];
+  pendingShare?: ShareData;
 }
 
 export type Ctx = BotContext<Session>;
