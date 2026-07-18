@@ -12,5 +12,16 @@
         ]
       }
     ]
+  },
+  {
+    "name": "Back to menu re-renders the welcome",
+    "steps": [
+      {
+        "send": { "callback": "menu:main" },
+        "expect": [
+          { "method": "editMessageText", "payload": { "text": "👋 Welcome! Tap a button below to get started." } }
+        ]
+      }
+    ]
   }
 ]

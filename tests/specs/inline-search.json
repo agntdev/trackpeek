@@ -1,19 +1,38 @@
 [
   {
-    "name": "@BotName [query]",
+    "name": "inline search button shows search instructions",
     "steps": [
       {
+        "send": { "callback": "inline_search" },
         "expect": [
           {
             "method": "sendMessage",
             "payload": {
-              "text": "Trigger inline search suggestions in channels"
+              "text": "To search for music, tap 🔍 Search on the main menu or type /search."
             }
           }
-        ],
+        ]
+      }
+    ]
+  },
+  {
+    "name": "inline query with short text returns no results",
+    "steps": [
+      {
         "send": {
-          "callback": "inline_search"
-        }
+          "update": {
+            "update_id": 1,
+            "inline_query": {
+              "id": "test-inline-1",
+              "from": { "id": 1, "is_bot": false, "first_name": "Test" },
+              "query": "a",
+              "offset": ""
+            }
+          }
+        },
+        "expect": [
+          { "method": "answerInlineQuery" }
+        ]
       }
     ]
   }

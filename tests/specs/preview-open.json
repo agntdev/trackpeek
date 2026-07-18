@@ -1,19 +1,17 @@
 [
   {
-    "name": "View Preview",
+    "name": "preview button with unknown track shows expired message",
     "steps": [
       {
+        "send": { "callback": "preview:unknown123" },
         "expect": [
           {
             "method": "sendMessage",
             "payload": {
-              "text": "Open external preview page privately"
+              "text": "That preview link has expired — run a new search to find it again."
             }
           }
-        ],
-        "send": {
-          "callback": "preview:open"
-        }
+        ]
       }
     ]
   }
